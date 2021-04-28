@@ -1,3 +1,7 @@
+# README
+
+bot: t.me/sixjarsbot
+
 /spend 1,71€ ply
 /earn 2350€
 /recurring 228€ nec

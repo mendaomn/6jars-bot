@@ -1,50 +1,71 @@
-import { Jar, JarName } from "../../types";
-import { CurrentJarsCommand, EarnCommand, SpendCommand } from "../commands/types";
-import { load, store } from "../storage";
+import { Earning, Expense, Jar, JarName, Movement } from "../../types";
+import {
+  CurrentJarsCommand,
+  EarnCommand,
+  SpendCommand,
+} from "../commands/types";
 
-export function spend(jars: Jar[], targetJar: JarName, amount: number): Jar[] {
-    return jars.map(jar => jar.name === targetJar
-        ? {
-            ...jar,
-            amount: jar.amount - amount,
-        }
-        : jar)
+export async function onSpend(
+  storeExpense: (amount: number, jar: JarName) => Promise<any>,
+  command: SpendCommand
+) {
+  return storeExpense(command.amount, command.jar);
 }
 
-export function earn(jars: Jar[], amount: number): Jar[] {
-    return jars.map(jar => ({
-        ...jar,
-        amount: jar.amount += amount * jar.percentage
-    }))
+export function onEarn(
+  storeEarning: (amount: number) => Promise<any>,
+  command: EarnCommand
+) {
+  return storeEarning(command.amount);
 }
 
-export function onSpend(command: SpendCommand) {
-    const result = load<Jar[]>('jars')
+function applyEarning(
+  jarsConfig: Jar[],
+  jars: Record<JarName, number>,
+  earning: Earning
+) {
+  const { amount } = earning;
+  jarsConfig.forEach((jar) => {
+    jars[jar.name] += jar.percentage * amount;
+  });
 
-    if (typeof result === 'string')
-        return;
-
-    const newData = spend(result.data, command.jar, command.amount)
-
-    store('jars', newData)
+  return jars;
 }
 
-export function onEarn(command: EarnCommand) {
-    const result = load<Jar[]>('jars')
+function applyExpense(jars: Record<JarName, number>, expense: Expense) {
+  const { jar, amount } = expense;
 
-    if (typeof result === 'string')
-        return;
-
-    const newData = earn(result.data, command.amount)
-
-    store('jars', newData)
+  jars[jar] -= amount;
+  return jars;
 }
 
-export function onCurrentJars(command: CurrentJarsCommand) {
-    const result = load<Jar[]>('jars')
+export async function onCurrentJars(
+  getJars: () => Promise<Jar[]>,
+  getMovements: () => Promise<Movement[]>,
+  command: CurrentJarsCommand
+) {
+  try {
+    const jarsConfig = await getJars();
+    const movements = await getMovements();
+    const initialJars: Record<JarName, number> = {
+      NEC: 0,
+      PLY: 0,
+      FFA: 0,
+      LTS: 0,
+      EDU: 0,
+      GIV: 0,
+    };
+    const jars = movements.reduce((currentJars, movement) => {
+      switch (movement.type) {
+        case "expense":
+          return applyExpense(currentJars, movement);
+        case "earning":
+          return applyEarning(jarsConfig, currentJars, movement);
+      }
+    }, initialJars);
 
-    if (typeof result === 'string')
-        return;
-
-    console.log(result.data)
+    return jars;
+  } catch (err) {
+    return err;
+  }
 }

@@ -1,61 +1,53 @@
-import { earn, spend } from ".."
-import { Jar, JarName } from "../../../types";
+import { onCurrentJars } from "..";
+import { Jar, Movement } from "../../../types";
+import { currentJarsCommand } from "../../commands";
 
-describe('given a spend handler and the current jars', () => {
-    let subject = spend;
-    let mockJars: Jar[] = [{
-        id: 'nec-id',
-        amount: 100,
-        name: 'NEC',
-        percentage: 0.15,
-    }, {
-        id: 'ply-id',
-        amount: 50,
-        name: 'PLY',
-        percentage: 0.15,
-    }];
+const mockExpense: Movement = {
+  jar: "NEC",
+  amount: 100,
+  timestamp: 1000000,
+  type: "expense",
+};
 
-    describe('when user spends money from a specific jar', () => {
-        let amount = 20;
-        let targetJar: JarName = 'NEC';
+const mockEarning: Movement = {
+  amount: 1000,
+  timestamp: 1000000,
+  type: "earning",
+};
 
-        it('should subtract that money from that jar', () => {
-            const outputJars = subject(mockJars, targetJar, amount)
-            const expectedJars = [
-                {...mockJars[0], amount: 80},
-                mockJars[1],
-            ]
+const mockJarsConfig: Jar[] = [
+  { name: "NEC", percentage: 0.55 },
+  { name: "PLY", percentage: 0.1 },
+  { name: "FFA", percentage: 0.1 },
+  { name: "EDU", percentage: 0.1 },
+  { name: "LTS", percentage: 0.1 },
+  { name: "GIV", percentage: 0.05 },
+];
 
-            expect(outputJars).toEqual(expectedJars)
-        })
-    })
-})
+describe("onCurrentJars", () => {
+  const subject = onCurrentJars;
+  describe("given the jars configuration and the movements list", () => {
+    const mockMovements: Movement[] = [mockExpense, mockEarning];
+    const mockGetJars = jest.fn().mockResolvedValue(mockJarsConfig);
+    const mockGetMovements = jest.fn().mockResolvedValue(mockMovements);
+    describe("when the jars totals are computed", () => {
+      it("should return the jars totals according to the movements list", async () => {
+        const totals = await subject(
+          mockGetJars,
+          mockGetMovements,
+          currentJarsCommand()
+        );
+        const expectedTotals = {
+          NEC: 450,
+          PLY: 100,
+          FFA: 100,
+          LTS: 100,
+          EDU: 100,
+          GIV: 50,
+        };
 
-describe('given an earn handler and the current jars', () => {
-    let subject = earn;
-    let mockJars: Jar[] = [{
-        id: 'nec-id',
-        amount: 100,
-        name: 'NEC',
-        percentage: 0.15,
-    }, {
-        id: 'ply-id',
-        amount: 50,
-        name: 'PLY',
-        percentage: 0.15,
-    }];
-
-    describe('when user earns money', () => {
-        let amount = 1000;
-
-        it('should spread that money according to each jar\'s percentage', () => {
-            const outputJars = subject(mockJars, amount)
-            const expectedJars = [
-                {...mockJars[0], amount: 250},
-                {...mockJars[1], amount: 200},
-            ]
-
-            expect(outputJars).toEqual(expectedJars)
-        })
-    })
-})
+        expect(totals).toEqual(expectedTotals);
+      });
+    });
+  });
+});
