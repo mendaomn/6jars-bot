@@ -15,4 +15,13 @@ export interface EarnCommand {
   amount: number;
 }
 
-export type Command = SpendCommand | EarnCommand | CurrentJarsCommand;
+export interface ErrorCommand {
+  name: "error";
+  message: string;
+}
+
+export type Command =
+  | SpendCommand
+  | EarnCommand
+  | CurrentJarsCommand
+  | ErrorCommand;

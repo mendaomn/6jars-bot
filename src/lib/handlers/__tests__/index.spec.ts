@@ -1,4 +1,4 @@
-import { onCurrentJars } from "..";
+import { computeJars, onCurrentJars } from "..";
 import { Jar, Movement } from "../../../types";
 import { currentJarsCommand } from "../../commands";
 
@@ -24,19 +24,13 @@ const mockJarsConfig: Jar[] = [
   { name: "GIV", percentage: 0.05 },
 ];
 
-describe("onCurrentJars", () => {
-  const subject = onCurrentJars;
+describe("computeJars", () => {
+  const subject = computeJars;
   describe("given the jars configuration and the movements list", () => {
     const mockMovements: Movement[] = [mockExpense, mockEarning];
-    const mockGetJars = jest.fn().mockResolvedValue(mockJarsConfig);
-    const mockGetMovements = jest.fn().mockResolvedValue(mockMovements);
     describe("when the jars totals are computed", () => {
-      it("should return the jars totals according to the movements list", async () => {
-        const totals = await subject(
-          mockGetJars,
-          mockGetMovements,
-          currentJarsCommand()
-        );
+      it("should return the jars totals according to the movements list", () => {
+        const totals = subject(mockJarsConfig, mockMovements);
         const expectedTotals = {
           NEC: 450,
           PLY: 100,

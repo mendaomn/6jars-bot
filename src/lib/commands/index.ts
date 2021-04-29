@@ -1,5 +1,10 @@
 import { JarName } from "../../types";
-import { SpendCommand, EarnCommand, CurrentJarsCommand } from "./types";
+import {
+  SpendCommand,
+  EarnCommand,
+  CurrentJarsCommand,
+  ErrorCommand,
+} from "./types";
 
 export function spendCommand(amount: number, jar: JarName): SpendCommand {
   return {
@@ -19,5 +24,12 @@ export function earnCommand(amount: number): EarnCommand {
 export function currentJarsCommand(): CurrentJarsCommand {
   return {
     name: "jars",
+  };
+}
+
+export function errorCommand(message: string): ErrorCommand {
+  return {
+    name: "error",
+    message,
   };
 }

@@ -1,7 +1,9 @@
 import faunadb from "faunadb";
 import { Jar, JarName, Movement } from "../../types";
 
-const secret = "fnAEHvJbs7ACBaGO61UitXwpjr6ux_3SvUFiKTVy";
+const secret = process.env.FAUNA_SECRET;
+
+if (!secret) throw new Error("FAUNA_SECRET must be provided");
 
 const q = faunadb.query;
 const client = new faunadb.Client({ secret });
