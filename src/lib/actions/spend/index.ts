@@ -1,5 +1,9 @@
 import { JarName } from "../../../types";
 import { errorCommand, spendCommand } from "../../commands";
+import numeral from "numeral";
+import { setupLocale } from "./utils";
+
+const numberFormatter = setupLocale(numeral);
 
 const JAR_NAMES: JarName[] = ["NEC", "PLY", "FFA", "EDU", "LTS", "GIV"];
 
@@ -10,7 +14,7 @@ function toJarName(jar: string): JarName | undefined {
 function parseContent(text: string) {
   const [, amount, jar] = text.replace(/ +/g, " ").split(" ");
 
-  const numberAmount = parseFloat(amount);
+  const numberAmount = numberFormatter(amount).value();
   const jarName = toJarName(jar);
 
   return { amount: numberAmount, jar: jarName };

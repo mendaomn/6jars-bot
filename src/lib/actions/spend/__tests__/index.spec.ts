@@ -1,27 +1,25 @@
 import { spendAction } from "..";
+import { JarName } from "../../../../types";
 import { errorCommand, spendCommand } from "../../../commands";
 
+const cases: [string, number, JarName][] = [
+  ["/spend 12€ NEC", 12, "NEC"],
+  ["/spend 12 NEC", 12, "NEC"],
+  ["/spend 12 nec", 12, "NEC"],
+  ["/spend 12,51€ NEC", 12.51, "NEC"],
+];
+
 describe("given some spend message", () => {
-  describe("when the message content is well formatted", () => {
-    const message = "/spend 12€ NEC";
-    it("should return the spend command", () => {
-      expect(spendAction(message)).toEqual(spendCommand(12, "NEC"));
-    });
-  });
-
-  describe("when the message content is well formatted", () => {
-    const message = "/spend 12 NEC";
-    it("should return the spend command", () => {
-      expect(spendAction(message)).toEqual(spendCommand(12, "NEC"));
-    });
-  });
-
-  describe("when the message content is well formatted", () => {
-    const message = "/spend 12 nec";
-    it("should return the spend command", () => {
-      expect(spendAction(message)).toEqual(spendCommand(12, "NEC"));
-    });
-  });
+  describe.each(cases)(
+    "when the message content is well formatted",
+    (message, expectedAmount, expectedJar) => {
+      it("should return the spend command", () => {
+        expect(spendAction(message)).toEqual(
+          spendCommand(expectedAmount, expectedJar)
+        );
+      });
+    }
+  );
 
   describe("when the jar name is not among the supported jars", () => {
     const message = "/spend 12€ DRP";
