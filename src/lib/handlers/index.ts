@@ -59,7 +59,7 @@ export function computeJars(jarsConfig: Jar[], movements: Movement[]) {
     GIV: 0,
   };
 
-  return movements.reduce((currentJars, movement) => {
+  return movements.reduce((currentJars, movement): Record<JarName, number> => {
     switch (movement.type) {
       case "expense":
         return applyExpense(currentJars, movement);

@@ -12,7 +12,7 @@ import {
   storeExpense,
 } from "./lib/storage";
 
-function handleCommand(command: Command) {
+async function handleCommand(command: Command): Promise<string> {
   switch (command.name) {
     case "spend":
       return onSpend(storeExpense, command);
