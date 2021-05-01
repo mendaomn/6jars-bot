@@ -1,7 +1,15 @@
-import { Earning, Expense, Jar, JarName, Movement } from "../../types";
+import {
+  Earning,
+  Expense,
+  Jar,
+  JarName,
+  Movement,
+  Transfer,
+} from "../../types";
 import {
   CurrentJarsCommand,
   EarnCommand,
+  MoveCommand,
   SpendCommand,
 } from "../commands/types";
 
@@ -29,6 +37,22 @@ export async function onEarn(
   }
 }
 
+export async function onMove(
+  storeTransfer: (
+    fromJar: JarName,
+    toJar: JarName,
+    amount: number
+  ) => Promise<any>,
+  command: MoveCommand
+) {
+  try {
+    await storeTransfer(command.fromJar, command.toJar, command.amount);
+    return "Transfer created successfully";
+  } catch (err) {
+    return `${err}`;
+  }
+}
+
 function applyEarning(
   jarsConfig: Jar[],
   jars: Record<JarName, number>,
@@ -49,6 +73,14 @@ function applyExpense(jars: Record<JarName, number>, expense: Expense) {
   return jars;
 }
 
+function applyTransfer(jars: Record<JarName, number>, expense: Transfer) {
+  const { fromJar, toJar, amount } = expense;
+
+  jars[fromJar] -= amount;
+  jars[toJar] += amount;
+  return jars;
+}
+
 export function computeJars(jarsConfig: Jar[], movements: Movement[]) {
   const initialJars: Record<JarName, number> = {
     NEC: 0,
@@ -65,6 +97,8 @@ export function computeJars(jarsConfig: Jar[], movements: Movement[]) {
         return applyExpense(currentJars, movement);
       case "earning":
         return applyEarning(jarsConfig, currentJars, movement);
+      case "transfer":
+        return applyTransfer(currentJars, movement);
     }
   }, initialJars);
 }

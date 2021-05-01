@@ -15,6 +15,13 @@ export interface EarnCommand {
   amount: number;
 }
 
+export interface MoveCommand {
+  name: "move";
+  amount: number;
+  fromJar: JarName;
+  toJar: JarName;
+}
+
 export interface ErrorCommand {
   name: "error";
   message: string;
@@ -23,5 +30,6 @@ export interface ErrorCommand {
 export type Command =
   | SpendCommand
   | EarnCommand
+  | MoveCommand
   | CurrentJarsCommand
   | ErrorCommand;

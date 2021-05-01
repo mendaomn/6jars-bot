@@ -4,6 +4,7 @@ import {
   EarnCommand,
   CurrentJarsCommand,
   ErrorCommand,
+  MoveCommand,
 } from "./types";
 
 export function spendCommand(amount: number, jar: JarName): SpendCommand {
@@ -18,6 +19,19 @@ export function earnCommand(amount: number): EarnCommand {
   return {
     name: "earn",
     amount,
+  };
+}
+
+export function moveCommand(
+  fromJar: JarName,
+  toJar: JarName,
+  amount: number
+): MoveCommand {
+  return {
+    name: "move",
+    amount,
+    fromJar,
+    toJar,
   };
 }
 

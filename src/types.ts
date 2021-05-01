@@ -18,4 +18,12 @@ export interface Earning {
   amount: number;
 }
 
-export type Movement = Expense | Earning;
+export interface Transfer {
+  type: "transfer";
+  timestamp: number;
+  amount: number;
+  fromJar: JarName;
+  toJar: JarName;
+}
+
+export type Movement = Expense | Earning | Transfer;

@@ -2,14 +2,16 @@ import { Telegraf } from "telegraf";
 import { authMiddleware } from "./lib/actions/auth";
 import { earnAction } from "./lib/actions/earn";
 import { jarsAction } from "./lib/actions/jars";
+import { moveAction } from "./lib/actions/move";
 import { spendAction } from "./lib/actions/spend";
 import { Command } from "./lib/commands/types";
-import { onCurrentJars, onEarn, onSpend } from "./lib/handlers";
+import { onCurrentJars, onEarn, onMove, onSpend } from "./lib/handlers";
 import {
   getJars,
   getMovements,
   storeEarning,
   storeExpense,
+  storeTransfer,
 } from "./lib/storage";
 
 async function handleCommand(command: Command): Promise<string> {
@@ -18,6 +20,8 @@ async function handleCommand(command: Command): Promise<string> {
       return onSpend(storeExpense, command);
     case "earn":
       return onEarn(storeEarning, command);
+    case "move":
+      return onMove(storeTransfer, command);
     case "jars":
       return onCurrentJars(getJars, getMovements, command);
     case "error":
@@ -56,6 +60,11 @@ function main() {
 
   bot.command("earn", async (ctx) => {
     const command = earnAction(ctx.message.text);
+    return ctx.reply(await handleCommand(command));
+  });
+
+  bot.command("move", async (ctx) => {
+    const command = moveAction(ctx.message.text);
     return ctx.reply(await handleCommand(command));
   });
 

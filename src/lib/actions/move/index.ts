@@ -1,5 +1,5 @@
 import { JarName } from "../../../types";
-import { errorCommand, spendCommand } from "../../commands";
+import { errorCommand, moveCommand, spendCommand } from "../../commands";
 import numeral from "numeral";
 import { setupLocale } from "../../utils";
 
@@ -12,22 +12,25 @@ function toJarName(jar: string): JarName | undefined {
 }
 
 function parseContent(text: string) {
-  const [, amount, jar] = text.replace(/ +/g, " ").split(" ");
+  const [, amount, fromJarInput, toJarInput] = text
+    .replace(/ +/g, " ")
+    .split(" ");
 
   const numberAmount = numberFormatter(amount).value();
-  const jarName = toJarName(jar);
+  const fromJar = toJarName(fromJarInput);
+  const toJar = toJarName(toJarInput);
 
-  return { amount: numberAmount, jar: jarName };
+  return { amount: numberAmount, fromJar, toJar };
 }
 
-export function spendAction(message: string) {
-  const { amount, jar } = parseContent(message);
+export function moveAction(message: string) {
+  const { amount, fromJar, toJar } = parseContent(message);
 
   if (!amount) return errorCommand("Amount should be a number");
-  if (!jar)
+  if (!fromJar || !toJar)
     return errorCommand(
       "Jar name should be one of NEC, PLY, FFA, EDU, LTS, GIV"
     );
 
-  return spendCommand(amount, jar);
+  return moveCommand(fromJar, toJar, amount);
 }

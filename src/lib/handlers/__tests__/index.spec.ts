@@ -1,15 +1,23 @@
 import { computeJars, onCurrentJars } from "..";
-import { Jar, Movement } from "../../../types";
+import { Earning, Expense, Jar, Movement, Transfer } from "../../../types";
 import { currentJarsCommand } from "../../commands";
 
-const mockExpense: Movement = {
+const mockExpense: Expense = {
   jar: "NEC",
   amount: 100,
   timestamp: 1000000,
   type: "expense",
 };
 
-const mockEarning: Movement = {
+const mockTransfer: Transfer = {
+  type: "transfer",
+  timestamp: 1000000,
+  amount: 450,
+  fromJar: "NEC",
+  toJar: "LTS",
+};
+
+const mockEarning: Earning = {
   amount: 1000,
   timestamp: 1000000,
   type: "earning",
@@ -27,15 +35,15 @@ const mockJarsConfig: Jar[] = [
 describe("computeJars", () => {
   const subject = computeJars;
   describe("given the jars configuration and the movements list", () => {
-    const mockMovements: Movement[] = [mockExpense, mockEarning];
+    const mockMovements: Movement[] = [mockExpense, mockTransfer, mockEarning];
     describe("when the jars totals are computed", () => {
       it("should return the jars totals according to the movements list", () => {
         const totals = subject(mockJarsConfig, mockMovements);
         const expectedTotals = {
-          NEC: 450,
+          NEC: 0,
           PLY: 100,
           FFA: 100,
-          LTS: 100,
+          LTS: 550,
           EDU: 100,
           GIV: 50,
         };
