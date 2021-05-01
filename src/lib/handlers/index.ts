@@ -103,6 +103,10 @@ export function computeJars(jarsConfig: Jar[], movements: Movement[]) {
   }, initialJars);
 }
 
+function formatTotal(total: number) {
+  return total.toLocaleString("it-IT");
+}
+
 export async function onCurrentJars(
   getJars: () => Promise<Jar[]>,
   getMovements: () => Promise<Movement[]>,
@@ -115,12 +119,12 @@ export async function onCurrentJars(
 
     return `Here's the content of your jars:
 
-🏠 NEC: ${jars.NEC}€
-🍷 PLY: ${jars.PLY}€
-📈 FFA: ${jars.FFA}€
-📱 LTS: ${jars.LTS}€
-📚 EDU: ${jars.EDU}€
-🎁 GIV: ${jars.GIV}€
+🏠 NEC: ${formatTotal(jars.NEC)}€
+🍷 PLY: ${formatTotal(jars.PLY)}€
+📈 FFA: ${formatTotal(jars.FFA)}€
+📱 LTS: ${formatTotal(jars.LTS)}€
+📚 EDU: ${formatTotal(jars.EDU)}€
+🎁 GIV: ${formatTotal(jars.GIV)}€
 `;
   } catch (err) {
     return `${err}`;
