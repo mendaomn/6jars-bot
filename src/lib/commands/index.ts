@@ -5,6 +5,7 @@ import {
   CurrentJarsCommand,
   ErrorCommand,
   MoveCommand,
+  ResetCommand,
 } from "./types";
 
 export function spendCommand(amount: number, jar: JarName): SpendCommand {
@@ -38,6 +39,12 @@ export function moveCommand(
 export function currentJarsCommand(): CurrentJarsCommand {
   return {
     name: "jars",
+  };
+}
+
+export function resetCommand(): ResetCommand {
+  return {
+    name: "reset",
   };
 }
 

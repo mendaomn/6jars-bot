@@ -1,5 +1,5 @@
 import faunadb from "faunadb";
-import { Jar, JarName, Movement, Transfer } from "../../types";
+import { Jar, JarName, Movement, Reset, Transfer } from "../../types";
 
 const secret = process.env.FAUNA_SECRET;
 
@@ -103,6 +103,21 @@ export async function storeTransfer(
   return client.query(
     q.Create(q.Collection("movements"), {
       data: makeTransferMovement(fromJar, toJar, amount),
+    })
+  );
+}
+
+function makeResetMovement(): Reset {
+  return {
+    type: 'reset',
+    timestamp: Date.now()
+  }
+}
+
+export async function storeReset() {
+  return client.query(
+    q.Create(q.Collection("movements"), {
+      data: makeResetMovement(),
     })
   );
 }

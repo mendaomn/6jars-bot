@@ -1,6 +1,5 @@
-import { computeJars, onCurrentJars } from "..";
-import { Earning, Expense, Jar, Movement, Transfer } from "../../../types";
-import { currentJarsCommand } from "../../commands";
+import { computeJars } from "..";
+import { Earning, Expense, Jar, JarName, Movement, Reset, Transfer } from "../../../types";
 
 const mockExpense: Expense = {
   jar: "NEC",
@@ -23,6 +22,11 @@ const mockEarning: Earning = {
   type: "earning",
 };
 
+const mockReset: Reset = {
+  timestamp: 1000000,
+  type: "reset",
+};
+
 const mockJarsConfig: Jar[] = [
   { name: "NEC", percentage: 0.55 },
   { name: "PLY", percentage: 0.1 },
@@ -30,26 +34,73 @@ const mockJarsConfig: Jar[] = [
   { name: "EDU", percentage: 0.1 },
   { name: "LTS", percentage: 0.1 },
   { name: "GIV", percentage: 0.05 },
+  { name: "CNT", percentage: 0 },
+  { name: "LQT", percentage: 0 },
 ];
+
+const emptyJars: Record<JarName, number> = {
+  NEC: 0,
+  PLY: 0,
+  FFA: 0,
+  LTS: 0,
+  EDU: 0,
+  GIV: 0,
+  CNT: 0,
+  LQT: 0,
+}
 
 describe("computeJars", () => {
   const subject = computeJars;
   describe("given the jars configuration and the movements list", () => {
-    const mockMovements: Movement[] = [mockExpense, mockTransfer, mockEarning];
-    describe("when the jars totals are computed", () => {
-      it("should return the jars totals according to the movements list", () => {
-        const totals = subject(mockJarsConfig, mockMovements);
-        const expectedTotals = {
-          NEC: 0,
+
+    describe('when computing an expense movement from the NEC jar', () => {
+      it('should subtract that amount from the NEC jar', () => {
+        expect(subject(mockJarsConfig, [mockExpense])).toEqual({
+          ...emptyJars,
+          NEC: -100
+        })
+      })
+    })
+
+    describe('when computing a transfer movement from NEC to LTS', () => {
+      it('should move that amount correctly', () => {
+        expect(subject(mockJarsConfig, [mockTransfer])).toEqual({
+          ...emptyJars,
+          NEC: -450,
+          LTS: 450
+        })
+      })
+    })
+
+    describe('when computing an earning movement', () => {
+      it('should distribute the earning accoring to the jars configuration', () => {
+        expect(subject(mockJarsConfig, [mockEarning])).toEqual({
+          ...emptyJars,
+          NEC: 550,
           PLY: 100,
           FFA: 100,
-          LTS: 550,
+          LTS: 100,
           EDU: 100,
           GIV: 50,
-        };
+        })
+      })
+    })
 
-        expect(totals).toEqual(expectedTotals);
-      });
-    });
+    describe('when computing a reset movement', () => {
+      const setupMovements = [mockEarning]
+      it('should move everything from the NEC, PLY, FFA, LTS and EDU jars into the LQT jar', () => {
+        expect(subject(mockJarsConfig, [...setupMovements, mockReset])).toEqual({
+          ...emptyJars,
+          NEC: 0,
+          PLY: 0,
+          FFA: 0,
+          LTS: 0,
+          EDU: 0,
+          GIV: 50,
+          LQT: 950,
+        })
+      })
+    })
   });
 });
+

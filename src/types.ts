@@ -1,4 +1,4 @@
-export type JarName = "NEC" | "PLY" | "FFA" | "EDU" | "LTS" | "GIV";
+export type JarName = "NEC" | "PLY" | "FFA" | "EDU" | "LTS" | "GIV" | "CNT" | "LQT";
 
 export interface Jar {
   name: JarName;
@@ -26,4 +26,9 @@ export interface Transfer {
   toJar: JarName;
 }
 
-export type Movement = Expense | Earning | Transfer;
+export interface Reset {
+  type: "reset";
+  timestamp: number;
+}
+
+export type Movement = Expense | Earning | Transfer | Reset;

@@ -3,14 +3,16 @@ import { authMiddleware } from "./lib/actions/auth";
 import { earnAction } from "./lib/actions/earn";
 import { jarsAction } from "./lib/actions/jars";
 import { moveAction } from "./lib/actions/move";
+import { resetAction } from "./lib/actions/reset";
 import { spendAction } from "./lib/actions/spend";
 import { Command } from "./lib/commands/types";
-import { onCurrentJars, onEarn, onMove, onSpend } from "./lib/handlers";
+import { onCurrentJars, onEarn, onMove, onReset, onSpend } from "./lib/handlers";
 import {
   getJars,
   getMovements,
   storeEarning,
   storeExpense,
+  storeReset,
   storeTransfer,
 } from "./lib/storage";
 
@@ -24,6 +26,8 @@ async function handleCommand(command: Command): Promise<string> {
       return onMove(storeTransfer, command);
     case "jars":
       return onCurrentJars(getJars, getMovements, command);
+    case "reset":
+      return onReset(storeReset, command);
     case "error":
       return command.message;
   }
@@ -50,6 +54,11 @@ function main() {
 
   bot.command("jars", async (ctx) => {
     const command = jarsAction();
+    return ctx.reply(await handleCommand(command));
+  });
+  
+  bot.command("reset", async (ctx) => {
+    const command = resetAction();
     return ctx.reply(await handleCommand(command));
   });
 

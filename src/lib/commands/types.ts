@@ -22,6 +22,10 @@ export interface MoveCommand {
   toJar: JarName;
 }
 
+export interface ResetCommand {
+  name: "reset";
+}
+
 export interface ErrorCommand {
   name: "error";
   message: string;
@@ -32,4 +36,5 @@ export type Command =
   | EarnCommand
   | MoveCommand
   | CurrentJarsCommand
+  | ResetCommand
   | ErrorCommand;

@@ -4,12 +4,14 @@ import {
   Jar,
   JarName,
   Movement,
+  Reset,
   Transfer,
 } from "../../types";
 import {
   CurrentJarsCommand,
   EarnCommand,
   MoveCommand,
+  ResetCommand,
   SpendCommand,
 } from "../commands/types";
 
@@ -53,6 +55,18 @@ export async function onMove(
   }
 }
 
+export async function onReset(
+  storeReset: () => Promise<any>,
+  command: ResetCommand
+) {
+  try {
+    await storeReset();
+    return "Reset created successfully";
+  } catch (err) {
+    return `${err}`;
+  }
+}
+
 function applyEarning(
   jarsConfig: Jar[],
   jars: Record<JarName, number>,
@@ -81,6 +95,17 @@ function applyTransfer(jars: Record<JarName, number>, expense: Transfer) {
   return jars;
 }
 
+function applyReset(jars: Record<JarName, number>, reset: Reset) {
+  const { NEC, FFA, PLY, LTS, EDU } = jars
+  jars.LQT += NEC + FFA + PLY + LTS + EDU
+  jars.NEC = 0
+  jars.FFA = 0
+  jars.PLY = 0
+  jars.LTS = 0
+  jars.EDU = 0
+  return jars;
+}
+
 export function computeJars(jarsConfig: Jar[], movements: Movement[]) {
   const initialJars: Record<JarName, number> = {
     NEC: 0,
@@ -89,6 +114,8 @@ export function computeJars(jarsConfig: Jar[], movements: Movement[]) {
     LTS: 0,
     EDU: 0,
     GIV: 0,
+    CNT: 0,
+    LQT: 0,
   };
 
   return movements.reduce((currentJars, movement): Record<JarName, number> => {
@@ -99,6 +126,8 @@ export function computeJars(jarsConfig: Jar[], movements: Movement[]) {
         return applyEarning(jarsConfig, currentJars, movement);
       case "transfer":
         return applyTransfer(currentJars, movement);
+      case "reset":
+        return applyReset(currentJars, movement);
     }
   }, initialJars);
 }
