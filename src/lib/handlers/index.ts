@@ -154,6 +154,8 @@ export async function onCurrentJars(
 📱 LTS: ${formatTotal(jars.LTS)}€
 📚 EDU: ${formatTotal(jars.EDU)}€
 🎁 GIV: ${formatTotal(jars.GIV)}€
+☂️ CNT: ${formatTotal(jars.CNT)}€
+💰 LQT: ${formatTotal(jars.LQT)}€
 `;
   } catch (err) {
     return `${err}`;
