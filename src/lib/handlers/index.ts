@@ -107,6 +107,10 @@ function applyReset(jars: Record<JarName, number>, reset: Reset) {
 }
 
 export function computeJars(jarsConfig: Jar[], movements: Movement[]) {
+  const contingencyJar = jarsConfig.find(jar => jar.name === 'CNT')
+  const liquidityJar = jarsConfig.find(jar => jar.name === 'LQT')
+
+
   const initialJars: Record<JarName, number> = {
     NEC: 0,
     PLY: 0,
@@ -114,8 +118,8 @@ export function computeJars(jarsConfig: Jar[], movements: Movement[]) {
     LTS: 0,
     EDU: 0,
     GIV: 0,
-    CNT: 0,
-    LQT: 0,
+    CNT: contingencyJar?.amount || 0,
+    LQT: liquidityJar?.amount || 0,
   };
 
   return movements.reduce((currentJars, movement): Record<JarName, number> => {

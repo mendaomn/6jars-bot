@@ -2,6 +2,7 @@ export type JarName = "NEC" | "PLY" | "FFA" | "EDU" | "LTS" | "GIV" | "CNT" | "L
 
 export interface Jar {
   name: JarName;
+  amount: number;
   percentage: number;
 }
 

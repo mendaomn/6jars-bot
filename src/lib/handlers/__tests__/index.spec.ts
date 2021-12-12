@@ -28,14 +28,14 @@ const mockReset: Reset = {
 };
 
 const mockJarsConfig: Jar[] = [
-  { name: "NEC", percentage: 0.55 },
-  { name: "PLY", percentage: 0.1 },
-  { name: "FFA", percentage: 0.1 },
-  { name: "EDU", percentage: 0.1 },
-  { name: "LTS", percentage: 0.1 },
-  { name: "GIV", percentage: 0.05 },
-  { name: "CNT", percentage: 0 },
-  { name: "LQT", percentage: 0 },
+  { name: "NEC", amount: 0, percentage: 0.55 },
+  { name: "PLY", amount: 0, percentage: 0.1 },
+  { name: "FFA", amount: 0, percentage: 0.1 },
+  { name: "EDU", amount: 0, percentage: 0.1 },
+  { name: "LTS", amount: 0, percentage: 0.1 },
+  { name: "GIV", amount: 0, percentage: 0.05 },
+  { name: "CNT", amount: 0, percentage: 0 },
+  { name: "LQT", amount: 0, percentage: 0 },
 ];
 
 const emptyJars: Record<JarName, number> = {
