@@ -43,7 +43,7 @@ function main() {
   bot.start((ctx) => ctx.reply("hello"));
 
   bot.use(async (ctx, next) => {
-    const command = authMiddleware(ctx.message?.from.id || 0);
+    const command = authMiddleware(ctx.message?.from.id || 0, ctx.chat?.id || 0);
 
     if (command) {
       return ctx.reply(await handleCommand(command));
