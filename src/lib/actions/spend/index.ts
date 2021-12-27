@@ -5,7 +5,7 @@ import { setupLocale } from "../../utils";
 
 const numberFormatter = setupLocale(numeral);
 
-const JAR_NAMES: JarName[] = ["NEC", "PLY", "FFA", "EDU", "LTS", "GIV"];
+const JAR_NAMES: JarName[] = ["NEC", "PLY", "FFA", "EDU", "LTS", "GIV", "CNT", "LQT"];
 
 function toJarName(jar: string): JarName | undefined {
   return JAR_NAMES.find((name) => jar?.toUpperCase() === name);
