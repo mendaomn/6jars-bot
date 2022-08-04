@@ -1,13 +1,15 @@
 import { Telegraf } from "telegraf";
 import { authMiddleware } from "./lib/actions/auth";
+import { debugAction } from "./lib/actions/debug";
 import { earnAction } from "./lib/actions/earn";
 import { jarsAction } from "./lib/actions/jars";
 import { moveAction } from "./lib/actions/move";
 import { resetAction } from "./lib/actions/reset";
 import { spendAction } from "./lib/actions/spend";
 import { Command } from "./lib/commands/types";
-import { onCurrentJars, onEarn, onMove, onReset, onSpend } from "./lib/handlers";
+import { onCurrentJars, onEarn, onMove, onReset, onSpend, onDebug } from "./lib/handlers";
 import {
+  getDebugMovements,
   getJars,
   getMovements,
   storeEarning,
@@ -30,6 +32,8 @@ async function handleCommand(command: Command): Promise<string> {
       return onReset(storeReset, command);
     case "error":
       return command.message;
+    case "debug":
+      return onDebug(getDebugMovements, command);
   }
 }
 
@@ -56,7 +60,7 @@ function main() {
     const command = jarsAction();
     return ctx.reply(await handleCommand(command));
   });
-  
+
   bot.command("reset", async (ctx) => {
     const command = resetAction();
     return ctx.reply(await handleCommand(command));
@@ -74,6 +78,11 @@ function main() {
 
   bot.command("move", async (ctx) => {
     const command = moveAction(ctx.message.text);
+    return ctx.reply(await handleCommand(command));
+  });
+
+  bot.command("debug", async (ctx) => {
+    const command = debugAction();
     return ctx.reply(await handleCommand(command));
   });
 

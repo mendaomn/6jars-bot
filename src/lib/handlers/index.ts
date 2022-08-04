@@ -1,4 +1,5 @@
 import {
+  DebugMovement,
   Earning,
   Expense,
   Jar,
@@ -9,6 +10,7 @@ import {
 } from "../../types";
 import {
   CurrentJarsCommand,
+  DebugCommand,
   EarnCommand,
   MoveCommand,
   ResetCommand,
@@ -161,6 +163,24 @@ export async function onCurrentJars(
 ☂️ CNT: ${formatTotal(jars.CNT)}€
 💰 LQT: ${formatTotal(jars.LQT)}€
 `;
+  } catch (err) {
+    return `${err}`;
+  }
+}
+
+export async function onDebug(
+  getDebugMovements: () => Promise<DebugMovement[]>,
+  command: DebugCommand
+) {
+  const SPACES = '          '
+  try {
+    const movements = await getDebugMovements();
+    const last50Movements = movements.reverse().splice(0, 50)
+
+    return last50Movements
+      .filter(m => m.type === 'expense')
+      .map((m: any)=> `${formatTotal(m.amount)}€${SPACES}${m.jar}${SPACES}${new Date(m.timestamp).toLocaleDateString('it-IT')}`)
+      .join('\n')
   } catch (err) {
     return `${err}`;
   }

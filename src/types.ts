@@ -32,4 +32,8 @@ export interface Reset {
   timestamp: number;
 }
 
+export type DebugMovement = Movement & {
+  ref: unknown
+}
+
 export type Movement = Expense | Earning | Transfer | Reset;

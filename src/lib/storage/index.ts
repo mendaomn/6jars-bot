@@ -1,5 +1,5 @@
 import faunadb from "faunadb";
-import { Jar, JarName, Movement, Reset, Transfer } from "../../types";
+import { DebugMovement, Jar, JarName, Movement, Reset, Transfer } from "../../types";
 
 const secret = process.env.FAUNA_SECRET;
 
@@ -120,4 +120,22 @@ export async function storeReset() {
       data: makeResetMovement(),
     })
   );
+}
+
+function toDebugMovement(document: Document): DebugMovement {
+  return {
+    ref: document.ref,
+    ...document.data
+  };
+}
+
+export async function getDebugMovements() {
+  const { data } = await client.query<QueryResult>(
+    q.Map(
+      q.Paginate(q.Documents(q.Collection("movements")), { size: 100000 }),
+      q.Lambda((x) => q.Get(x))
+    )
+  );
+
+  return data.map(toDebugMovement);
 }

@@ -31,10 +31,15 @@ export interface ErrorCommand {
   message: string;
 }
 
+export interface DebugCommand {
+  name: "debug";
+}
+
 export type Command =
   | SpendCommand
   | EarnCommand
   | MoveCommand
   | CurrentJarsCommand
   | ResetCommand
-  | ErrorCommand;
+  | ErrorCommand
+  | DebugCommand;

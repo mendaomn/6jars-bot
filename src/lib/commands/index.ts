@@ -6,6 +6,7 @@ import {
   ErrorCommand,
   MoveCommand,
   ResetCommand,
+  DebugCommand,
 } from "./types";
 
 export function spendCommand(amount: number, jar: JarName): SpendCommand {
@@ -52,5 +53,11 @@ export function errorCommand(message: string): ErrorCommand {
   return {
     name: "error",
     message,
+  };
+}
+
+export function debugCommand(): DebugCommand {
+  return {
+    name: "debug"
   };
 }
