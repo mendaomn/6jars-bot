@@ -40,7 +40,7 @@ export async function getJars() {
 export async function getMovements() {
   const { data } = await client.query<QueryResult>(
     q.Map(
-      q.Paginate(q.Documents(q.Collection("movements")), { size: 100000 }),
+      q.Paginate(q.Documents(q.Collection("movements")), { size: 200000 }),
       q.Lambda((x) => q.Get(x))
     )
   );
