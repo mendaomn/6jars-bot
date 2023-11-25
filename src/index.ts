@@ -61,8 +61,11 @@ function main() {
   })
 
   bot.command("jars", async (ctx) => {
+    console.log(`Command received`, ctx.message.text)
     const command = jarsAction();
-    return ctx.reply(await handleCommand(command));
+    const result = await ctx.reply(await handleCommand(command));
+    console.log(`Will reply with`, result)
+    return result
   });
 
   bot.command("reset", async (ctx) => {
