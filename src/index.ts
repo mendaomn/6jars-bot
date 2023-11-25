@@ -56,6 +56,10 @@ function main() {
     await next();
   });
 
+  bot.catch((err, ctx) => {
+    console.error(err, ctx.message)
+  })
+
   bot.command("jars", async (ctx) => {
     const command = jarsAction();
     return ctx.reply(await handleCommand(command));
