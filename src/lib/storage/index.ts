@@ -16,6 +16,7 @@ interface Document {
 
 interface QueryResult {
   data: Document[];
+  after?: unknown;
 }
 
 function toJar(document: Document): Jar {
@@ -38,14 +39,27 @@ export async function getJars() {
 }
 
 export async function getMovements() {
-  const { data } = await client.query<QueryResult>(
-    q.Map(
-      q.Paginate(q.Documents(q.Collection("movements")), { size: 300000 }),
-      q.Lambda((x) => q.Get(x))
-    )
-  );
+  async function getPage(token?: unknown) {
+    return client.query<QueryResult>(
+      q.Map(
+        q.Paginate(q.Documents(q.Collection("movements")), { 
+          size: 500,
+          after: token
+        }),
+        q.Lambda((x) => q.Get(x))
+      )
+    );
+  }
 
-  return data.map(toMovement);
+  let {data, after: token} = await getPage()
+  const allData = data.concat()
+  while (token) {
+    const additionalData = await getPage(token)
+    allData.push(...additionalData.data)
+    token = additionalData.after
+  }
+
+  return allData.map(toMovement);
 }
 
 function makeExpenseMovement(amount: number, jar: JarName): Movement {
