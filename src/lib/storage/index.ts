@@ -153,12 +153,19 @@ function toDebugMovement(document: Document): DebugMovement {
 }
 
 export async function getDebugMovements() {
-  const { data } = await client.query<QueryResult>(
-    q.Map(
-      q.Paginate(q.Documents(q.Collection("movements")), { size: 100000 }),
-      q.Lambda((x) => q.Get(x))
-    )
-  );
+  async function getPage(pageSize: number, token?: unknown) {
+    return client.query<QueryResult>(
+      q.Map(
+        q.Paginate(q.Documents(q.Collection("movements")), { 
+          size: pageSize,
+          after: token
+        }),
+        q.Lambda((x) => q.Get(x))
+      )
+    );
+  }
+
+  const data = await getAllPages(getPage)
 
   return data.map(toDebugMovement);
 }
