@@ -37,7 +37,7 @@ async function handleCommand(command: Command): Promise<string> {
   }
 }
 
-function main() {
+function createBot() {
   const token = process.env.TELEGRAM_TOKEN;
 
   if (!token) throw new Error("TELEGRAM_TOKEN must be provided");
@@ -96,7 +96,7 @@ function main() {
   return bot;
 }
 
-const bot = main();
+const bot = createBot();
 
 if (process.env.NODE_ENV === "dev") {
   bot.launch();

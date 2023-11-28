@@ -38,12 +38,27 @@ export async function getJars() {
   return data.map(toJar);
 }
 
+const PAGE_SIZE = 500
+
+async function getAllPages(getPage: CallableFunction) {
+  let {data, after: token} = await getPage(PAGE_SIZE)
+  const allData = data.concat()
+  
+  while (token) {
+    const additionalData = await getPage(PAGE_SIZE, token)
+    allData.push(...additionalData.data)
+    token = additionalData.after
+  }
+
+  return allData
+}
+
 export async function getMovements() {
-  async function getPage(token?: unknown) {
+  async function getPage(pageSize: number, token?: unknown) {
     return client.query<QueryResult>(
       q.Map(
         q.Paginate(q.Documents(q.Collection("movements")), { 
-          size: 500,
+          size: pageSize,
           after: token
         }),
         q.Lambda((x) => q.Get(x))
@@ -51,15 +66,9 @@ export async function getMovements() {
     );
   }
 
-  let {data, after: token} = await getPage()
-  const allData = data.concat()
-  while (token) {
-    const additionalData = await getPage(token)
-    allData.push(...additionalData.data)
-    token = additionalData.after
-  }
+  const data = await getAllPages(getPage)
 
-  return allData.map(toMovement);
+  return data.map(toMovement);
 }
 
 function makeExpenseMovement(amount: number, jar: JarName): Movement {
