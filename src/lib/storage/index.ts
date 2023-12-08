@@ -1,5 +1,6 @@
 import faunadb from "faunadb";
 import { DebugMovement, Jar, JarName, Movement, Reset, Transfer } from "../../types";
+import { Snapshot } from "./snapshot";
 
 const secret = process.env.FAUNA_SECRET;
 
@@ -27,6 +28,10 @@ function toMovement(document: Document): Movement {
   return document.data;
 }
 
+function toSnapshot(document: Document): Snapshot<Jar[]> {
+  return document.data;
+}
+
 export async function getJars() {
   const { data } = await client.query<QueryResult>(
     q.Map(
@@ -40,10 +45,10 @@ export async function getJars() {
 
 const PAGE_SIZE = 500
 
-async function getAllPages(getPage: CallableFunction) {
-  let {data, after: token} = await getPage(PAGE_SIZE)
+async function getAllPages(getPage: CallableFunction, after?: string) {
+  let { data, after: token } = await getPage(PAGE_SIZE, after)
   const allData = data.concat()
-  
+
   while (token) {
     const additionalData = await getPage(PAGE_SIZE, token)
     allData.push(...additionalData.data)
@@ -53,11 +58,11 @@ async function getAllPages(getPage: CallableFunction) {
   return allData
 }
 
-export async function getMovements() {
+export async function getMovements(after?: string) {
   async function getPage(pageSize: number, token?: unknown) {
     return client.query<QueryResult>(
       q.Map(
-        q.Paginate(q.Documents(q.Collection("movements")), { 
+        q.Paginate(q.Documents(q.Collection("movements")), {
           size: pageSize,
           after: token
         }),
@@ -66,9 +71,43 @@ export async function getMovements() {
     );
   }
 
-  const data = await getAllPages(getPage)
+  const data = await getAllPages(getPage, after)
 
   return data.map(toMovement);
+}
+
+function makeSnapshot(lastDocumentInSnapshotRef: string, jars: Jar[]): Snapshot<Jar[]> {
+  return {
+    state: jars,
+    lastDocumentInSnapshotRef,
+    timestamp: Date.now(),
+  };
+}
+
+
+export async function getLastSnapshot(): Promise<Snapshot<Jar[]>> {
+  const { data } = await client.query<QueryResult>(
+    q.Map(
+      q.Paginate(
+        q.Reverse(
+          q.Documents(
+            q.Collection("snapshots")
+          )
+        ),
+        { size: 1 }
+      ),
+      q.Lambda((x) => q.Get(x))
+    ));
+
+  return data.map(toSnapshot)?.[0]
+}
+
+export function storeSnapshot(lastDocumentInSnapshotRef: string, jars: Jar[]) {
+  return client.query(
+    q.Create(q.Collection("snapshots"), {
+      data: makeSnapshot(lastDocumentInSnapshotRef, jars),
+    })
+  );
 }
 
 function makeExpenseMovement(amount: number, jar: JarName): Movement {
@@ -156,7 +195,7 @@ export async function getDebugMovements() {
   async function getPage(pageSize: number, token?: unknown) {
     return client.query<QueryResult>(
       q.Map(
-        q.Paginate(q.Documents(q.Collection("movements")), { 
+        q.Paginate(q.Documents(q.Collection("movements")), {
           size: pageSize,
           after: token
         }),

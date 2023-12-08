@@ -16,6 +16,7 @@ import {
   ResetCommand,
   SpendCommand,
 } from "../commands/types";
+import { getLastSnapshot } from "../storage";
 
 export async function onSpend(
   storeExpense: (amount: number, jar: JarName) => Promise<any>,
@@ -109,17 +110,22 @@ function applyReset(jars: Record<JarName, number>, reset: Reset) {
 }
 
 export function computeJars(jarsConfig: Jar[], movements: Movement[]) {
+  const necessityJar = jarsConfig.find(jar => jar.name === 'NEC')
+  const playJar = jarsConfig.find(jar => jar.name === 'PLY')
+  const financialFreedomJar = jarsConfig.find(jar => jar.name === 'FFA')
+  const longTermSavingsJar = jarsConfig.find(jar => jar.name === 'LTS')
+  const educationJar = jarsConfig.find(jar => jar.name === 'EDU')
+  const giveJar = jarsConfig.find(jar => jar.name === 'GIV')
   const contingencyJar = jarsConfig.find(jar => jar.name === 'CNT')
   const liquidityJar = jarsConfig.find(jar => jar.name === 'LQT')
 
-
   const initialJars: Record<JarName, number> = {
-    NEC: 0,
-    PLY: 0,
-    FFA: 0,
-    LTS: 0,
-    EDU: 0,
-    GIV: 0,
+    NEC: necessityJar?.amount || 0,
+    PLY: playJar?.amount || 0,
+    FFA: financialFreedomJar?.amount || 0,
+    LTS: longTermSavingsJar?.amount || 0,
+    EDU: educationJar?.amount || 0,
+    GIV: giveJar?.amount || 0,
     CNT: contingencyJar?.amount || 0,
     LQT: liquidityJar?.amount || 0,
   };
@@ -144,13 +150,33 @@ function formatTotal(total: number) {
 
 export async function onCurrentJars(
   getJars: () => Promise<Jar[]>,
-  getMovements: () => Promise<Movement[]>,
+  getMovements: (after?: string) => Promise<Movement[]>,
   command: CurrentJarsCommand
 ) {
   try {
-    const jarsConfig = await getJars();
-    const movements = await getMovements();
-    const jars = computeJars(jarsConfig, movements);
+    let jars: Record<JarName, number> = {
+      NEC: 0,
+      PLY: 0,
+      FFA: 0,
+      EDU: 0,
+      LTS: 0,
+      GIV: 0,
+      CNT: 0,
+      LQT: 0
+    }
+    const snapshot = await getLastSnapshot()
+    if (snapshot) {
+      console.log({snapshotFound: true})
+      // `after` is inclusive, I should skip the first result
+      const [_, ...movements] = await getMovements(snapshot.lastDocumentInSnapshotRef)
+      jars = computeJars(snapshot.state, movements)
+    } else {
+      console.log({snapshotFound: false})
+      const jarsConfig = await getJars();
+      const movements = await getMovements();
+      jars = computeJars(jarsConfig, movements);
+    }
+    
 
     return `Here's the content of your jars:
 
