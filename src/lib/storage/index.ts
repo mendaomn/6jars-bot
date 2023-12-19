@@ -60,7 +60,8 @@ async function getAllPages(getPage: CallableFunction, after?: string) {
 
 export async function getMovements(after?: string) {
   async function getPage(pageSize: number, token?: unknown) {
-    return client.query<QueryResult>(
+    console.log({page_requested: 'movements'})
+    const result = await client.query<QueryResult>(
       q.Map(
         q.Paginate(q.Documents(q.Collection("movements")), {
           size: pageSize,
@@ -69,6 +70,8 @@ export async function getMovements(after?: string) {
         q.Lambda((x) => q.Get(x))
       )
     );
+    console.log({page_requested: 'movements', result})
+    return result
   }
 
   const data = await getAllPages(getPage, after)

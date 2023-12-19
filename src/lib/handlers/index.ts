@@ -166,7 +166,7 @@ export async function onCurrentJars(
     }
     const snapshot = await getLastSnapshot()
     if (snapshot) {
-      console.log({snapshotFound: true})
+      console.log({snapshotFound: true, snapshot})
       // `after` is inclusive, I should skip the first result
       const [_, ...movements] = await getMovements(snapshot.lastDocumentInSnapshotRef)
       jars = computeJars(snapshot.state, movements)
