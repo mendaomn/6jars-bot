@@ -1,10 +1,10 @@
 import faunadb from "faunadb";
-import { computeJars } from "../lib/handlers";
 import { getJars } from "../lib/storage";
 import { Expense, JarName, Movement } from "../types";
 // import { stringify } from 'csv-stringify/sync'
 import { setupLocale } from "../lib/utils";
 import numeral from "numeral";
+import { computeJars } from "../lib/handlers/jars/computeJars";
 
 const secret = process.env.FAUNA_SECRET;
 

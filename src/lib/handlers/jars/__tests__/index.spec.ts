@@ -1,5 +1,5 @@
-import { computeJars } from "..";
-import { Earning, Expense, Jar, JarName, Movement, Reset, Transfer } from "../../../types";
+import { computeJars } from "../computeJars";
+import { Earning, Expense, Jar, JarName, Reset, Transfer } from "../../../../types";
 
 const mockExpense: Expense = {
   jar: "NEC",
